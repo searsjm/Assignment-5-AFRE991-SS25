@@ -1,0 +1,386 @@
+---
+title: "Assignment 5: Programming and Regression (okay okay also some more data wrangling and visualization)"
+subtitle: AFRE 991 SS25
+date: ""
+output: html_document
+---
+
+***
+
+Collaborators:
+
+***
+
+<br>
+
+
+### Instructions
+
+1. Fill in your name in the `author:` string portion of the YAML header above.
+
+
+2. Complete your assignment using the **R Markdown** (.Rmd) template file (this file). 
+
+3. The output document should show your **code**, display **all relevant R output** in the document, and the **answer** to each question in the assignment. Use the provided code chunks and add discussion where needed/desired.  Interpret your output (explain what it's showing) anytime it's not immediately 100% obvious. 
+
+  * I will take points off if the requested content is not visible in the rendered R Markdown file **even if your code is correct** - make sure to display every result/object requested by the question! 
+  * As well, **do not** show unnecessary output (i.e. viewing a large dataset). You can use the code chunk settings to hide what is displayed/run when compiled.
+
+4. Make sure that the "submitted" version of the assignment repo (i.e. final push before the deadline) includes
+    1. The completed **R Markdown** script (`.Rmd` extension)
+    1. The "knit" (fully rendered) **HTML** document (`.html` extension)
+    1. Any other files or folders created during the knitting process. For example, if your script produces a graph, it will create an image and save it inside of a subfolder.
+
+3. Your script should contain **comments** that meaningfully describe what it does. Comments clearly communicate to others what's happening and why, every step of the way (and communicate to me that you understand why you're performing each step). Your audience very much includes future you, who will remember surprisingly little of the code you write today (if you're anything like me). You should have at least one comment every 5-10 lines or more. Write comments in present tense above the corresponding line and omit unnecessary words.
+  * Note: comments are **about the code you're writing**. They are **not a place for written answers**. Add you written answers/explanations to problems **after the code chunks in the body of the R Markdown file**.
+
+4. Anytime that you see a line containing
+
+    **A:**
+
+   this indicates that I expect a **written answer** in addition to **code/output** for that question. Please make sure to add textual explanations on these lines below the relevant code chunks (and not in code comments!)
+
+5. Write the names of any **other students you worked with** at the top of your assignment next to the "collaborators" text. As a reminder, you can work together and discuss strategies for solving problems, but I don't want to see identical code.
+
+<br>
+
+<br>
+
+***
+
+<br>
+
+## Introduction
+
+For this assignment we'll be replicating and extending ["Minimum Wage Increases and Agricultural Employment of Locals and Guest Workers" by Smith, Ifft and Kim (2022) JAAEA](https://onlinelibrary.wiley.com/doi/10.1002/jaa2.27).
+
+This paper exploits recent state-level changes in minimum wage regulation to examine the impact of minimum wage increases on agricultural employment. The authors focus on overall employment effects as well as heterogeneity across subgroups, with particular attention to differential impacts for native/naturalized US citizens and guest workers (those that participate in the H-2A visa program). 
+
+
+They've got a nicely built replication package available, and fortunately for us they did all their main data wrangling and analysis in Stata! In this assignment we'll replicate some of their data wrangling and main regression analyses, and in our next assignment we'll handle some of the spatial data and employ machine learning methods.
+
+Use the below code chunk as your preamble to load in packages, set any plot themes, and load the `acs_analysis.dta` file currently in the `processed_data` folder.
+
+```{r}
+
+```
+
+<br>
+
+***
+
+<br>
+
+
+### Part 1: Wrangling H2A Data
+
+This paper combines data from several different sources, including the American Community Survey (ACS), H2A disclosure data from the US Department of Labor, and minimum wage data from the St. Louis Federal Reserve Bank (who we know has a pretty great website and API!)
+
+They end up doing a lot of data cleaning/wrangling to get to their final analysis data. Rather than replicate all of it, we're just going to re-do their wrangling of the ACS wage data.
+
+1. Write a function that reads in the raw ACS data for a given year and cleans it.
+
+  * Name your function `clean_wage` and call its lone argument `year` (expected to be a numeric of 2010-2018).
+  * Read in the CSV (located in the `raw_data/ACSwage` folder) for that year and drop the first variable label row (use a logical condition rather than dropping the row by its index)
+    * Desired file is named `"ACSDP5Y(year).DP03_data_with_overlays_2020-02-10T101725.csv"` where `(year)` is 2010-2018
+  * Select and rename variables so that your dataframe consists of the following variables:
+    1. `fips`: the last 5 characters of the original `GEO_ID` variable
+    1. `med_earnings`: a numeric version of the original `DP03_0092E` variable, divided by 2080
+    1. `med_earnings_m`: a numeric version of the original `DP03_0093E` variable, divided by 2080
+    1. `med_earnings_f`: a numeric version of the original `DP03_0094E` variable, divided by 2080
+    1. `year`: the year of the file
+
+```{r}
+
+```
+
+1. Once written, use `map()` to run the function for the years 2010-2018, then combine them row-wise in a data frame. Save the output to a `.rds` file in the `processed_data` project folder with the filename `acs_clean.rds`
+
+```{r}
+
+```
+
+
+<br>
+
+***
+
+<br>
+
+
+### Part 2: Generating Figures
+
+1. Generate a figure that plots the minimum wage over time for each state.
+  * Drop observations where `State` is equal to an empty string
+  * Place Year on the horizontal axis and the (state) minimum wage on the vertical axis
+  * For the series, generate a medium green-colored line.
+  * In addition to the line, place points for each year *on top* of the line.
+  * Use `facet_wrap()` to facet by state.
+    * When done your plot should have one panel per state, with 7 rows and 7 column
+  * Label the vertical axis "Minimum Wage"
+  * Label the horizontal Axis "Census Year"
+  * Use `scale_y_continuous()` and the `label_dollar()` function in the **scales** package to add a dollar sign in front of all the y axis labels
+  * Use a theme other than the default one
+
+```{r}
+
+```
+
+
+1. What did the local farm workforce look like during the analysis period? Create a column chart showing the total number of farmworkers in each year.
+  * Create a new summary data frame named `wf_df` that includes one summary statistic: the total number of farmworkers in each year. Calculate this as the sum of the person weight variable.
+    * Think about missing values!
+  * Use this data frame to produce a column chart
+    * Place the year on the x axis and the number of farmworkers on the y axis
+    * Change the fill color to a medium blue (either by choosing a solid medium blue or a dark blue and changing opacity)
+    * Change the x axis breaks to show every other year (start with 2006, then 2008,..., then 2018)
+    * Change the y axis breaks to every 200,000 with an upper limit of 1 million
+      * Use the `label_comma()` function in the **scales** package to change the labels to include commas
+    * Add the y axis title "Number of Farm Workers" and omit the x axis title 
+    * Add a plot title "Total Farm Workers by Year
+    * Use a theme other than the default one
+  
+```{r}
+
+```
+<br>
+
+***
+
+<br>
+
+
+### Part 3: Regression
+
+1. First, replicate Table 3 with results of the individual models of Equations 1-2 for agricultural nonmanager workers. Use `feols()` and `etable()`.
+
+  * Use the `acs_analysis.dta` file
+  * Use the binary employment indicator as the dependent variable ($Employed_{it}$)
+  * On the right-hand side of the formula, include
+    * The state minimum wage (not the federal minimum wage)
+    * Individual demographics
+      * immigration status: indicators for 1) whether a person is a noncitizen, and 2) whether a person is a naturalized citizen
+      * Indicators for each race (either added as a factor or as fixed effects)
+      * Age 
+      * Indicators for marital status (either added as a factor or as fixed effects)
+      * Indicator for female
+      * Indicator for Hispanic
+    * Unemployment rate
+    * State by year time trends for Columns 1, 3, and 4
+    * Region fixed effects (`region_fe`) for Columns 1, 3, and 4
+    * State fixed effects for Column 2
+    * Year fixed effects for all Columns
+  * Use the variable labeled "Person weight" for the unit weights
+    * See the help file for `feols()` for more on the `weights` argument
+  * Cluster by state
+
+Make sure to use the `etable()` settings to arrange coefficients in the desired order, use descriptive labels to match the table, add a note and extra lines, and a title.
+
+As well, use the `markdown = TRUE` argument to display the Latex table as an image in your RMarkdown file.
+
+*Hint: use the `notes = FALSE` setting in `feols()` to disable the notifications for NA and collinearity drops*
+
+*Hint Hint: You may need to copy + paste the HTML code (everything from `<div` to `/div>`) in your output to below the code chunk in order for the table to display in the markdown file*
+
+```{r}
+
+```
+
+
+1. Think back to our discussion about standard errors and clustering. Given what we talked about from Abadie et al. (2023), is clustering at the state level the right choice?
+
+Articulate your thoughts below, referring to both the impact of the sampling process and the treatment assignment mechanism in making your determination.
+
+***
+
+**A:**
+
+***
+
+1. Modify the Table 3 Column 4 equation to explore whether there are differences in the impact of minimum wage changes for **female agricultural employment**. 
+  * Include an interaction between female and the minimum wage
+    * Make sure to also include the levels of each of the variables!! (Note: you **always need to include all components of an interaction in your regression for it to be interpreted the way you want to**)
+
+Based on your results, does there appear to be
+  
+  * An impact of minimum wage changes for male ag employment?
+  * A gender gap in ag employment?
+  * A differential impact of minimum wage changes for female ag employment relative to male?
+  
+For each, discuss the relevant coefficient and statistical significance, commenting on the sign/magnitude of the effect if one is statistically distinguishable.
+
+```{r, eval = F}
+
+```
+
+***
+
+**A:**
+
+***
+
+1. Next, replicate the PUMA-level analysis from Table 4 with results of the individual models of Equations 1-2 for agricultural nonmanager workers. Use `feols()` and `etable()`
+
+  * Use the `acs_analysis_cpumas0010.dta` file in the `processed_data` folder
+  * Use the variable labels when you view the dataset to determine which match the two dependent variables (Log number of local workers, level of local workers) and the right-hand side variables listed in the table
+  * On the right-hand side of the formula, also include 
+    * Indicators for female and hispanic
+    * An interaction of state fips (as a factor) with the year (do not do this as an interacted fixed effect in the fixed effects portion of the formula)
+  * Include region fixed effects in each regression
+  * Cluster all regression by state
+  * Use the `extralines` argument to add the "State time trend", "C. Puma time trend", and "Demographic controls" rows where they appear in the paper's table
+    * Read the documentation for `etable()` and the `extralines` argument!
+
+Make sure to use the `etable()` settings to arrange coefficients in the desired order, use descriptive labels to match the table, add a note and extra lines, and a title.
+
+As well, use the `markdown = TRUE` argument to display the Latex table as an image in your RMarkdown file.
+
+*Hint: use the `notes = FALSE` setting in `feols()` to disable the notifications for NA and collinearity drops*
+
+*Hint Hint: You may need to copy + paste the HTML code (everything from `<div` to `/div>`) in your output to below the code chunk in order for the table to display in the markdown file*
+
+```{r, eval = F}
+
+```
+
+<br>
+
+***
+
+<br>
+
+
+## Challenge: Simulation
+
+Everything below this point won't be used to calculate assignment grades. Instead, think of these as more complex tasks you can attempt to 1) check your understanding and wrangling skills, and 2) practice some extensions of the techniques we covered in class.
+
+Being able to design and run simulations is a very useful consequence of having learned programming skills. Unsure about the bias or consistency of an estimator? Want to use models to estimate counterfactuals and show the predicted impacts of a given policy? Want to show that your identification strategy is robust to a variety of data generating processes? Use a simulation!
+
+<br>
+
+Let's start with a straightforward example: a simulation designed to show where the randomness in a confidence interval comes from.
+
+1. Build a function named `simulate_sample` that takes three arguments:
+  
+  * `nobs`: the sample size
+  * `var_mean`: the mean of the normal variable to draw
+  * `var_sd`: the standard deviation of the normal variable to draw
+
+Given the values of the three arguments, your function should
+  
+  * Draw a random normal variable with length `nobs` and the supplied mean and standard deviation values. *hint: you'll need to use `rnorm()`.
+  * Calculate the mean and standard deviation of the simulated variable
+  * Calculate a 95% confidence interval following $\text{95% CI} = E[X] \pm 1.96*\frac{SD(X)}{\sqrt{n}}$
+  * Return a results dataframe containing variables for
+    * The provided mean 
+    * The provided standard deviation
+    * The lower confidence interval bound
+    * The upper confidence interval bound
+    * A logical variable named `in_ci` checking whether the true mean is within the calculated confidence interval
+    * A logical variable named `bad_lower` checking whether the true mean is below the confidence interval lower bound
+    * A logical variable named `bad_upper` checking whether the true mean is above the confidence interval lower bound
+
+```{r}
+
+```
+
+1. Once built, test your function for given mean and standard deviation values of your choice. To start, use a sample size of 50.
+
+```{r}
+
+```
+
+1. Next, draw a bunch of samples! Use `map()` to run your simulation 1,000 times. Use the same mean and standard deviation values for all draws. Use a sample size of 50.
+
+```{r}
+
+```
+
+1. Check to see how many of the confidence intervals do *not* include the true mean. Produce a summary table that reports
+  
+  * The total number of simulations
+  * The true mean (argument value)
+  * The true standard deviation (argument value)
+  * The sample mean
+  * The sample standard deviation
+  * The percent of samples where the true mean is within the calculated confidence interval
+  * The percent of samples where the true mean is *below* the confidence interval
+  * The percent of samples where the true mean is *above* the confidence interval
+
+```{r}
+
+```
+
+4. Plot the distribution of $\bar{X}$ and compare it to the *true population* 95% confidence interval.
+
+  * Given your utilized mean and standard deviation, calculate the upper and lower bounds of the *true population* confidence interval as
+  
+  $$ \text{95% True Confidence Interval} ~=~ \left[\mu - 1.96 \cdot \frac{\sigma}{\sqrt{n}},~ \mu + 1.96 \cdot \frac{\sigma}{\sqrt{n}}\right]$$
+
+  * Use `geom_density()` to plot the distribution of the sample means
+  * Use `geom_vline()` to add red vertical lines at the lower and upper bounds of the *true population* confidence interval 
+  * Use a theme other than the default
+  * Change the plot title to "Distribution of Simulated Sample Means (1,000 draws of n=50)"
+  * Change the y-axis title to "Density" and the x-axis title to "Sample Mean"
+
+What do you notice about the shape of the simulated distribution? Does it appear exactly normal? Mostly normal? Do the areas falling above/below the true confidence interval bounds appear roughly symmetrical?
+
+```{r}
+
+```
+
+***
+
+**A:**
+
+***
+5. Let's evaluate the symmetry of our simulated failures (i.e. falling below the lower bound and falling above the upper bound) using a different figure.
+
+  * Using your simulated sample, plot each sample's upper and lower confidence interval bounds as points, with the lower bound on the x-axis and the upper bound on the y-axis
+    * Set the shape of each point to `1` and the opacity to `0.7`
+  * Use `geom_vline()` to add a vertical line with an x-intercept at the true population mean
+    * Give the line an opacity of 0.6 and a red color.
+  * Use `geom_hline()` to add a horizontal line with a y-intercept at the true population mean
+    * Give the line an opacity of 0.6 and a red color.
+  * Use `geom_abline()` to add a downward-sloping 45 degree line
+    * Set the slope to `-1`
+    * Set the (vertical) intercept such that the line passes through the intersection of your two red lines
+  * Add the chart title "Symmetry of Confidence Interval Bounds (1,000 draws of n=50)"
+  * Add the x-axis title "Lower End of Confidence Interval"
+  * Add the y-axis title "Upper End of Confidence Interval"
+  * Use a theme other than the default
+
+Do you notice anything new from this figure?
+
+```{r}
+
+```
+
+***
+
+**A:**
+
+***
+
+6. Redo your simulation for a much larger sample size. Reproduce your summary table. What changed? What stayed the same? What conclusion does comparison of the two results let you draw?
+
+```{r}
+
+```
+
+***
+
+**A:**
+
+***
+
+
+<br>
+
+***
+
+<br>
+
+<center>
+When done, make sure to push your updated assignment repo containing the **completed .Rmd file**, the knit **HTML document**, and any other files or folders created during the knitting process.
+</center>
