@@ -187,7 +187,7 @@ As well, use the `markdown = TRUE` argument to display the Latex table as an ima
 ```
 
 
-1. Think back to our discussion about standard errors and clustering. Given what we talked about from Abadie et al. (2023), is clustering at the state level the right choice?
+2. Think back to our discussion about standard errors and clustering. Given what we talked about from Abadie et al. (2023), is clustering at the state level the right choice?
 
 Articulate your thoughts below, referring to both the impact of the sampling process and the treatment assignment mechanism in making your determination.
 
@@ -197,7 +197,7 @@ Articulate your thoughts below, referring to both the impact of the sampling pro
 
 ***
 
-1. Modify the Table 3 Column 4 equation to explore whether there are differences in the impact of minimum wage changes for **female agricultural employment**. 
+3. Modify the Table 3 Column 4 equation to explore whether there are differences in the impact of minimum wage changes for **female agricultural employment**. 
   * Include an interaction between female and the minimum wage
     * Make sure to also include the levels of each of the variables!! (Note: you **always need to include all components of an interaction in your regression for it to be interpreted the way you want to**)
 
@@ -219,7 +219,7 @@ For each, discuss the relevant coefficient and statistical significance, comment
 
 ***
 
-1. Next, replicate the PUMA-level analysis from Table 4 with results of the individual models of Equations 1-2 for agricultural nonmanager workers. Use `feols()` and `etable()`
+4. Next, replicate the PUMA-level analysis from Table 4 with results of the individual models of Equations 1-2 for agricultural nonmanager workers. Use `feols()` and `etable()`
 
   * Use the `acs_analysis_cpumas0010.dta` file in the `processed_data` folder
   * Use the variable labels when you view the dataset to determine which match the two dependent variables (Log number of local workers, level of local workers) and the right-hand side variables listed in the table
